@@ -119,13 +119,7 @@ struct ContentView: View {
     ContentView()
 }
 ```
-Below is a **clean, professional, README-ready section** you can **directly paste after**
-**“Full ContentView Example (Default Theme)”** in your README.
-
-Language is simple, structured, and explains **exactly what happens and why**.
-
----
-
+ 
 ## Using a Custom Theme for Specific Text (Light & Dark Mode)
 
 In many apps, you may want **some texts to use different colors** than the default theme.
