@@ -1,9 +1,3 @@
-Below is a **clean, professional README.md** written in **simple language**, step-by-step, exactly matching **your final working architecture**.
-There are **no emojis**, and examples are **clear and beginner-friendly**.
-
-You can copy-paste this directly into `README.md`.
-
----
 
 # AutoThemeKit
 
