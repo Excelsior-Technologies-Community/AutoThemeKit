@@ -119,22 +119,36 @@ struct ContentView: View {
     ContentView()
 }
 ```
+Below is a **clean, professional, README-ready section** you can **directly paste after**
+**“Full ContentView Example (Default Theme)”** in your README.
+
+Language is simple, structured, and explains **exactly what happens and why**.
 
 ---
 
-## Creating Your Own Theme (Recommended Way)
+## Using a Custom Theme for Specific Text (Light & Dark Mode)
 
-If you want custom colors, create a **new file** in your app.
+In many apps, you may want **some texts to use different colors** than the default theme.
 
-### Recommended File Name
+Example requirement:
+
+* Text: `Text("AutoThemeKit SwiftUI project")`
+* Light Mode → **Green**
+* Dark Mode → **Orange**
+
+AutoThemeKit supports this using **semantic roles**.
+
+---
+
+## Step 1: Create a Custom Theme (Recommended in a New File)
+
+Create a new file in your app:
 
 ```
 AppThemes.swift
 ```
 
----
-
-### Example: Custom Purple / Yellow Theme
+### AppThemes.swift
 
 ```swift
 import SwiftUI
@@ -147,14 +161,14 @@ public enum AppThemes {
             background: .white,
             primaryText: .orange,
             secondaryText: .orange,
-            highlightText: .green,     // Light mode color
+            highlightText: .green,   // Light mode → Green
             inverseText: .white
         ),
         dark: SemanticColors(
             background: .black,
             primaryText: .blue,
             secondaryText: .blue,
-            highlightText: .orange,    // Dark mode color
+            highlightText: .orange,  // Dark mode → Orange
             inverseText: .black
         )
     )
@@ -163,17 +177,24 @@ public enum AppThemes {
 
 Here:
 
-* Light mode highlight text is green
-* Dark mode highlight text is orange
-* System decides which mode is active
+* `highlightText` is **green in light mode**
+* `highlightText` is **orange in dark mode**
+* System appearance decides which one is used
 
 ---
 
-## Using Your Custom Theme in ContentView
+## Step 2: Use Default Theme + Custom Theme Together
 
-You only change **one line** in your view.
+You can safely use:
 
-### Updated ContentView Using Custom Theme
+* **Default theme** for most UI
+* **Custom theme** only for specific text
+
+This is a recommended and common approach.
+
+---
+
+## Final ContentView Example (Default + Custom Theme Combined)
 
 ```swift
 import SwiftUI
@@ -183,12 +204,13 @@ struct ContentView: View {
 
     @Environment(\.colorScheme) private var colorScheme
 
-    // Use your custom theme
-    let theme: Theme = AppThemes.purpleYellow
+    // Default app theme
+    let theme: Theme = .default
 
     var body: some View {
 
         let colors = theme.colors(for: colorScheme)
+        let customTheme = AppThemes.purpleYellow.colors(for: colorScheme)
 
         ZStack {
             colors.background
@@ -196,16 +218,70 @@ struct ContentView: View {
 
             VStack(spacing: 12) {
 
+                // Uses default theme primary text
                 Text("Noman Belim")
                     .foregroundColor(colors.primaryText)
 
+                // Uses default theme highlight text
                 Text("I am iOS Developer")
                     .foregroundColor(colors.highlightText)
+
+                // Uses custom theme highlight text
+                // Light mode → Green
+                // Dark mode → Orange
+                Text("AutoThemeKit SwiftUI project")
+                    .foregroundColor(customTheme.highlightText)
             }
         }
     }
 }
+
+#Preview {
+    ContentView()
+}
 ```
+
+---
+
+## What Happens Automatically
+
+| System Mode | Text Color |
+| ----------- | ---------- |
+| Light Mode  | Green      |
+| Dark Mode   | Orange     |
+
+No conditions
+No if-else
+No manual toggle
+
+SwiftUI updates the UI automatically when the system theme changes.
+
+---
+
+## Key Concept to Remember
+
+* **Theme** defines Light and Dark color meaning
+* **Semantic role** decides which color is used
+* Views never hardcode colors
+* System controls Light / Dark mode
+
+If a color looks wrong, check:
+
+* Which semantic role is used
+* Not the theme logic
+
+---
+
+This section is now **production-ready**, **beginner-friendly**, and **professional**.
+
+If you want next:
+
+* Final README polish
+* UIKit usage section
+* Advanced semantic roles
+* Release notes for v1.0.0
+
+Just tell me.
 
 No other changes are required.
 
