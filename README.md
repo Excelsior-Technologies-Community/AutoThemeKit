@@ -119,7 +119,7 @@ struct ContentView: View {
     ContentView()
 }
 ```
- ![IMG-1783](https://github.com/user-attachments/assets/18bb88e5-e6bb-4673-be63-0cecb00f9f98)
+
 
 ## Using a Custom Theme for Specific Text (Light & Dark Mode)
 
