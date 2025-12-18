@@ -1,9 +1,9 @@
 import SwiftUI
 // MARK: - Profile Header
-struct ProfileHeaderView: View {
+public struct ProfileHeaderView: View {
     @EnvironmentObject private var themeManager: ThemeManager
     
-    var body: some View {
+    public  var body: some View {
         let colors = themeManager.colors
         
         VStack(spacing: 16) {
@@ -44,10 +44,10 @@ struct ProfileHeaderView: View {
 }
 
 // MARK: - Theme Toggle
-struct ThemeToggleView: View {
+public struct ThemeToggleView: View {
     @EnvironmentObject private var themeManager: ThemeManager
     
-    var body: some View {
+    public  var body: some View {
         let colors = themeManager.colors
         
         VStack(alignment: .leading, spacing: 12) {
@@ -90,13 +90,13 @@ struct ThemeToggleView: View {
 }
 
 // MARK: - Theme Customization
-struct ThemeCustomizationView: View {
+public struct ThemeCustomizationView: View {
     @EnvironmentObject private var themeManager: ThemeManager
     @State private var lightTextColor: Color = .black
     @State private var darkTextColor: Color = .white
     @State private var showResetAlert = false
     
-    var body: some View {
+    public  var body: some View {
         let colors = themeManager.colors
         
         VStack(alignment: .leading, spacing: 12) {
@@ -175,13 +175,13 @@ struct ThemeCustomizationView: View {
 }
 
 // MARK: - Color Picker Row
-struct ColorPickerRow: View {
+public struct ColorPickerRow: View {
     let icon: String
     let iconColor: Color
     let title: String
     @Binding var color: Color
     
-    var body: some View {
+    public  var body: some View {
         HStack(spacing: 16) {
             Image(systemName: icon)
                 .foregroundColor(iconColor)
