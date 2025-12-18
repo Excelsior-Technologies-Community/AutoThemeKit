@@ -1,36 +1,39 @@
 # AutoThemeKit
 
-AutoThemeKit is a lightweight SwiftUI library that automatically adapts your app’s UI to the **system Light / Dark mode** and lets developers **fully control colors per text, per screen, and per mode** using **semantic color roles**.
+AutoThemeKit is a **SwiftUI theme engine** that provides:
 
-The library does **not** add any toggle buttons.
-It follows the iPhone’s system appearance settings automatically.
+* Manual **Light / Dark toggle**
+* User-customizable colors for **Light & Dark mode**
+* Centralized `ThemeManager`
+* `EnvironmentObject`-based propagation
+* Clean, semantic color access (`colors.background`, `colors.text`)
+* Persistent user preferences
+
+Designed for **real apps**, **UI kits**, and **Swift Packages**.
 
 ---
 
 ## Features
 
-* Follows iOS system Light / Dark mode automatically
-* No manual toggle or state management required
-* Semantic color roles (not hardcoded colors)
-* Developer decides colors for Light and Dark mode
-* Different screens can use different themes
-* SwiftUI native
-* iOS 15+
+* Light / Dark mode toggle
+* User can choose **any color** for text in Light & Dark mode
+* Persistent theme & color storage
+* No hardcoded UI colors
+* SwiftUI-native
+* Works with large modular projects
 
 ---
 
 ## Requirements
 
-* iOS 15 or later
+* iOS 15+
 * SwiftUI
 
 ---
 
 ## Installation (Swift Package Manager)
 
-### Step 1: Add Dependency
-
-1. Open your Xcode project
+1. Open Xcode
 2. Go to **File → Add Packages…**
 3. Enter the repository URL:
 
@@ -38,14 +41,13 @@ It follows the iPhone’s system appearance settings automatically.
 https://github.com/Excelsior-Technologies-Community/AutoThemeKit
 ```
 
-4. Select the latest version
-5. Add the package to your app target
+4. Add the package to your app target
 
 ---
 
-## Importing the Library
+## Importing AutoThemeKit
 
-In any SwiftUI file where you want to use themes:
+In any SwiftUI file where you use the theme system:
 
 ```swift
 import AutoThemeKit
@@ -53,35 +55,52 @@ import AutoThemeKit
 
 ---
 
-## Basic Usage (Default Theme)
+## Step 1: Inject ThemeManager (MANDATORY)
 
-AutoThemeKit provides a default theme that already supports Light and Dark mode.
+You **must** inject `ThemeManager` at the app root.
 
-### Step 1: Read system color scheme
+### App Entry File
 
 ```swift
-@Environment(\.colorScheme) private var colorScheme
+@main
+struct DemoProjactApp: App {
+
+    @StateObject private var themeManager = ThemeManager.shared
+
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+                .environmentObject(themeManager)
+                .preferredColorScheme(
+                    themeManager.mode == .dark ? .dark : .light
+                )
+        }
+    }
+}
+```
+
+Why this is required:
+
+* `ThemeManager` is used via `@EnvironmentObject`
+* Without this, the app will crash at runtime
+
+---
+
+## Step 2: Use ThemeManager in Any View
+
+```swift
+@EnvironmentObject private var themeManager: ThemeManager
+```
+
+Get resolved colors:
+
+```swift
+let colors = themeManager.colors
 ```
 
 ---
 
-### Step 2: Choose a theme
-
-```swift
-let theme: Theme = .default
-```
-
----
-
-### Step 3: Resolve colors for current mode
-
-```swift
-let colors = theme.colors(for: colorScheme)
-```
-
----
-
-### Full ContentView Example (Default Theme)
+## Full ContentView Example
 
 ```swift
 import SwiftUI
@@ -89,26 +108,31 @@ import AutoThemeKit
 
 struct ContentView: View {
 
-    @Environment(\.colorScheme) private var colorScheme
-
-    // App chooses which theme to use
-    let theme: Theme = .default
+    @EnvironmentObject private var themeManager: ThemeManager
 
     var body: some View {
-
-        let colors = theme.colors(for: colorScheme)
+        let colors = themeManager.colors
 
         ZStack {
             colors.background
                 .ignoresSafeArea()
 
-            VStack(spacing: 12) {
+            ScrollView {
+                VStack(spacing: 32) {
 
-                Text("Noman Belim")
-                    .foregroundColor(colors.primaryText)
+                    ProfileHeaderView()
+                        .environmentObject(themeManager)
 
-                Text("I am iOS Developer")
-                    .foregroundColor(colors.highlightText)
+                    Divider()
+                        .background(colors.text.opacity(0.2))
+                        .padding(.horizontal)
+
+                    VStack(spacing: 24) {
+                        ThemeToggleView()
+                        ThemeCustomizationView()
+                    }
+                }
+                .padding(.vertical, 32)
             }
         }
     }
@@ -116,187 +140,177 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
+        .environmentObject(ThemeManager.shared)
 }
 ```
 
-
-## Using a Custom Theme for Specific Text (Light & Dark Mode)
-
-In many apps, you may want **some texts to use different colors** than the default theme.
-
-Example requirement:
-
-* Text: `Text("AutoThemeKit SwiftUI project")`
-* Light Mode → **Green**
-* Dark Mode → **Orange**
-
-AutoThemeKit supports this using **semantic roles**.
-
 ---
 
-## Step 1: Create a Custom Theme (Recommended in a New File)
-
-Create a new file in your app:
-
-```
-AppThemes.swift
-```
-
-### AppThemes.swift
+## Profile Header Example
 
 ```swift
-import SwiftUI
-import AutoThemeKit
+public struct ProfileHeaderView: View {
 
-public enum AppThemes {
+    @EnvironmentObject private var themeManager: ThemeManager
 
-    public static let purpleYellow = Theme(
-        light: SemanticColors(
-            background: .white,
-            primaryText: .orange,
-            secondaryText: .orange,
-            highlightText: .green,   // Light mode → Green
-            inverseText: .white
-        ),
-        dark: SemanticColors(
-            background: .black,
-            primaryText: .blue,
-            secondaryText: .blue,
-            highlightText: .orange,  // Dark mode → Orange
-            inverseText: .black
-        )
-    )
-}
-```
+    public init() {}
 
-Here:
+    public var body: some View {
+        let colors = themeManager.colors
 
-* `highlightText` is **green in light mode**
-* `highlightText` is **orange in dark mode**
-* System appearance decides which one is used
+        VStack(spacing: 16) {
 
----
+            Circle()
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            colors.text.opacity(0.3),
+                            colors.text.opacity(0.1)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .frame(width: 100, height: 100)
+                .overlay(
+                    Text("NB")
+                        .font(.system(size: 36, weight: .bold))
+                        .foregroundColor(colors.text)
+                )
 
-## Step 2: Use Default Theme + Custom Theme Together
-
-You can safely use:
-
-* **Default theme** for most UI
-* **Custom theme** only for specific text
-
-This is a recommended and common approach.
-
----
-
-## Final ContentView Example (Default + Custom Theme Combined)
-
-```swift
-import SwiftUI
-import AutoThemeKit
-
-struct ContentView: View {
-
-    @Environment(\.colorScheme) private var colorScheme
-
-    // Default app theme
-    let theme: Theme = .default
-
-    var body: some View {
-
-        let colors = theme.colors(for: colorScheme)
-        let customTheme = AppThemes.purpleYellow.colors(for: colorScheme)
-
-        ZStack {
-            colors.background
-                .ignoresSafeArea()
-
-            VStack(spacing: 12) {
-
-                // Uses default theme primary text
+            VStack(spacing: 8) {
                 Text("Noman Belim")
-                    .foregroundColor(colors.primaryText)
+                    .font(.system(size: 28, weight: .bold))
+                    .foregroundColor(colors.text)
 
-                // Uses default theme highlight text
-                Text("I am iOS Developer")
-                    .foregroundColor(colors.highlightText)
-
-                // Uses custom theme highlight text
-                // Light mode → Green
-                // Dark mode → Orange
-                Text("AutoThemeKit SwiftUI project")
-                    .foregroundColor(customTheme.highlightText)
+                Text("iOS Developer")
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(colors.text.opacity(0.7))
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 6)
+                    .background(colors.text.opacity(0.1))
+                    .cornerRadius(12)
             }
+        }
+        .padding()
+    }
+}
+```
+
+---
+
+## Theme Toggle View (Light / Dark)
+
+```swift
+public struct ThemeToggleView: View {
+
+    @EnvironmentObject private var themeManager: ThemeManager
+    public init() {}
+
+    public var body: some View {
+        let colors = themeManager.colors
+
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Appearance")
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundColor(colors.text)
+
+            Toggle(
+                "Dark Mode",
+                isOn: Binding(
+                    get: { themeManager.mode == .dark },
+                    set: { _ in themeManager.toggleMode() }
+                )
+            )
+        }
+        .padding()
+    }
+}
+```
+
+---
+
+## Theme Customization (User Color Picker)
+
+Users can select **any color** for Light & Dark text.
+
+```swift
+public struct ThemeCustomizationView: View {
+
+    @EnvironmentObject private var themeManager: ThemeManager
+    @State private var lightTextColor: Color = .black
+    @State private var darkTextColor: Color = .white
+
+    public init() {}
+
+    public var body: some View {
+
+        VStack(spacing: 16) {
+
+            ColorPicker("Light Mode Text", selection: $lightTextColor)
+                .onChange(of: lightTextColor) {
+                    themeManager.setLightTextColor($0)
+                }
+
+            ColorPicker("Dark Mode Text", selection: $darkTextColor)
+                .onChange(of: darkTextColor) {
+                    themeManager.setDarkTextColor($0)
+                }
+        }
+        .padding()
+        .onAppear {
+            lightTextColor = themeManager.theme.lightTextColor ?? .black
+            darkTextColor = themeManager.theme.darkTextColor ?? .white
         }
     }
 }
+```
 
-#Preview {
-    ContentView()
+---
+
+## If You Want Your Own UI Design
+
+You **do not need to use the provided views**.
+
+Just use:
+
+```swift
+@EnvironmentObject private var themeManager: ThemeManager
+let colors = themeManager.colors
+```
+
+And design freely:
+
+```swift
+Text("Hello")
+    .foregroundColor(colors.text)
+
+ZStack {
+    colors.background
 }
 ```
 
 ---
 
-## What Happens Automatically
+## Important Rules
 
-| System Mode | Text Color |
-| ----------- | ---------- |
-| Light Mode  | Green      |
-| Dark Mode   | Orange     |
-
-No conditions
-No if-else
-No manual toggle
-
-SwiftUI updates the UI automatically when the system theme changes.
+* Always inject `ThemeManager` at app root
+* Always use `@EnvironmentObject`
+* Do NOT hardcode colors
+* Always use `colors.background` and `colors.text`
 
 ---
 
-## Key Concept to Remember
+## Summary
 
-* **Theme** defines Light and Dark color meaning
-* **Semantic role** decides which color is used
-* Views never hardcode colors
-* System controls Light / Dark mode
+AutoThemeKit gives you:
 
-If a color looks wrong, check:
+* Central theme control
+* User-driven customization
+* Clean SwiftUI architecture
+* Production-ready theming
 
-* Which semantic role is used
-* Not the theme logic
-
----
- 
-
-## Semantic Color Roles Explained
-
-| Role          | Usage                       |
-| ------------- | --------------------------- |
-| background    | Screen background           |
-| primaryText   | Main text                   |
-| secondaryText | Supporting text             |
-| highlightText | Emphasized text             |
-| inverseText   | Text on colored backgrounds |
-
-Views never use raw colors.
-They only use semantic roles.
+No hacks. No magic. Just correct SwiftUI design.
 
 ---
-
-## How It Works Internally
-
-* iOS controls Light / Dark mode
-* SwiftUI provides `ColorScheme`
-* AutoThemeKit maps Light / Dark to your colors
-* UI updates automatically when system mode changes
-
-No state, no storage, no toggle button.
-
----
-
-## Best Practices
-
-* Keep themes in a separate file (AppThemes.swift)
-* Use semantic roles consistently
-* Do not hardcode colors in views
-* Let the system control Light / Dark mode
- 
+  
