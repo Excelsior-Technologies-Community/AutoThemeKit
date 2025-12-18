@@ -9,7 +9,7 @@ AutoThemeKit is a **SwiftUI theme engine** that provides:
 * Clean, semantic color access (`colors.background`, `colors.text`)
 * Persistent user preferences
 
-Designed for **real apps**, **UI kits**, and **Swift Packages**.
+Designed for **real apps** and **Swift Packages**.
 
 ---
 
