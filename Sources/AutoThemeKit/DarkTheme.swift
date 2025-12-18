@@ -252,19 +252,24 @@ public struct ThemeCustomizationView: View {
         }
     }
 }
+
 // MARK: - Theme Toggle
 public struct ThemeToggleView: View {
+
     @EnvironmentObject private var themeManager: ThemeManager
-    
-    public  var body: some View {
+
+    // ✅ REQUIRED PUBLIC INITIALIZER
+    public init() {}
+
+    public var body: some View {
         let colors = themeManager.colors
-        
+
         VStack(alignment: .leading, spacing: 12) {
             Text("Appearance")
                 .font(.system(size: 18, weight: .semibold))
                 .foregroundColor(colors.text)
                 .padding(.horizontal, 24)
-            
+
             HStack {
                 Label {
                     Text("Dark Mode")
@@ -275,17 +280,20 @@ public struct ThemeToggleView: View {
                         .foregroundColor(themeManager.mode == .dark ? .blue : .orange)
                         .font(.system(size: 20))
                 }
-                
+
                 Spacer()
-                
-                Toggle("", isOn: Binding(
-                    get: { themeManager.mode == .dark },
-                    set: { _ in
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            themeManager.toggleMode()
+
+                Toggle(
+                    "",
+                    isOn: Binding(
+                        get: { themeManager.mode == .dark },
+                        set: { _ in
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                themeManager.toggleMode()
+                            }
                         }
-                    }
-                ))
+                    )
+                )
                 .labelsHidden()
                 .tint(.blue)
             }
@@ -297,6 +305,7 @@ public struct ThemeToggleView: View {
         }
     }
 }
+
 public struct ProfileHeaderView: View {
     @EnvironmentObject private var themeManager: ThemeManager
     
